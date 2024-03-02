@@ -14,7 +14,7 @@
 struct AllSensorData
 {
   /* data */
-  float temp = 0, humi = 0, CO = 0, CO2 = 0, SO2 = 0, NO2 = 0, PM25 = 0, PM10 = 0, O3 = 0;
+  float temp = 9999, humi = 9999, CO = 9999, CO2 = 9999, SO2 = 9999, NO2 = 9999, PM25 = 9999, PM10 = 9999, O3 = 9999;
 };
 
 
@@ -52,5 +52,6 @@ class SENSOR_RS485{
 
 AllSensorData GetAllSensorData();
 const char* ConvertToJsonObject(AllSensorData InData);
+// AllSensorData roundData(AllSensorData data);
 
 #endif

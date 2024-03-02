@@ -21,7 +21,6 @@
     // xTaskCreatePinnedToCore(taskGetData, "GetDataTask", 10000, NULL, 1, NULL, 0);         // TASK1
     // /* FreeRTOS End adding tasks */
     SetupNbiot();
-    Serial.println(ConvertToJsonObject(TempData));
 
   }
 

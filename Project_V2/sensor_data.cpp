@@ -207,7 +207,7 @@ AllSensorData GetAllSensorData() {
     return  ReturnData;
 }
 
-const char* ConvertToJsonObject(AllSensorData InData) { 
+const char* ConvertToJsonObject(AllSensorData data) { 
     DynamicJsonDocument doc(1024);
 
     // doc["sensor"] = "gps";
@@ -215,15 +215,15 @@ const char* ConvertToJsonObject(AllSensorData InData) {
     // doc["data"][0] = 48.756080;
     // doc["data"][1] = 2.302038;
 
-    doc["temperature"] = InData.temp;
-    doc["humidity"] = InData.humi;
-    doc["co2"] = InData.CO2;
-    doc["co"] = InData.CO;
-    doc["so2"] = InData.SO2;
-    doc["no2"] = InData.NO2;
-    doc["pm2-5"] = InData.PM25;
-    doc["pm10"] = InData.PM10;
-    doc["o3"] = InData.O3;
+    doc["temperature"] = round(data.temp * 100) / 100.0;
+    doc["humidity"] = round(data.humi * 100) / 100.0;
+    doc["co2"] = round(data.CO2 * 100) / 100.0;
+    doc["co"] = round(data.CO * 100) / 100.0;
+    doc["so2"] = round(data.SO2 * 100) / 100.0;
+    doc["no2"] = round(data.NO2 * 100) / 100.0;
+    doc["pm2-5"] = round(data.PM25 * 100) / 100.0;
+    doc["pm10"] = round(data.PM10 * 100) / 100.0;
+    doc["o3"] = round(data.O3 * 100) / 100.0;
 
     String temp;
     serializeJson(doc, temp);
@@ -233,3 +233,16 @@ const char* ConvertToJsonObject(AllSensorData InData) {
     // char* temp;
     // return temp;
 }
+
+// AllSensorData roundData(AllSensorData data){
+//   data.temp = round(data.temp * 100) / 100.0;
+//   data.humi = round(data.humi * 100) / 100.0;
+//   data.CO = round(data.CO * 100) / 100.0;
+//   data.CO2 = round(data.CO2 * 100) / 100.0;
+//   data.SO2 = round(data.SO2 * 100) / 100.0;
+//   data.O3 = round(data.O3 * 100) / 100.0;
+//   data.PM10 = round(data.PM10 * 100) / 100.0;
+//   data.PM25 = round(data.PM25 * 100) / 100.0;
+//   data.NO2 = round(data.NO2 * 100) / 100.0;
+//   return data;
+// }

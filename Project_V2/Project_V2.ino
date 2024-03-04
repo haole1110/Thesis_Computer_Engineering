@@ -2,10 +2,10 @@
   #include <M5Atom.h>
   #include "sensor_data.h"
   #include "nbiot.h"
-  //#include "nbio2.cpp"
   #include <freertos/FreeRTOS.h>
   #include <freertos/task.h>
   #include <SimpleKalmanFilter.h>
+  #include "relay.h"
 /* End user private include */
 
   AllSensorData TempData;
@@ -26,22 +26,22 @@
 
   void loop() {
     M5.update();
-    for (int i=0; i < 5; i++){
-      TempData = GetAllSensorData(); 
-      TempData.temp = simpleKalmanFilter.updateEstimate(TempData.temp);
-      TempData.humi = simpleKalmanFilter.updateEstimate(TempData.humi);
-      TempData.CO = simpleKalmanFilter.updateEstimate(TempData.CO);
-      TempData.CO2 = simpleKalmanFilter.updateEstimate(TempData.CO2);
-      TempData.SO2 = simpleKalmanFilter.updateEstimate(TempData.SO2);
-      TempData.NO2 = simpleKalmanFilter.updateEstimate(TempData.NO2);
-      TempData.PM25 = simpleKalmanFilter.updateEstimate(TempData.PM25);
-      TempData.PM10 = simpleKalmanFilter.updateEstimate(TempData.PM10);
-      TempData.O3 = simpleKalmanFilter.updateEstimate(TempData.O3);
-
-    }
+    TempData = GetAllSensorData(); 
+    // for (int i=0; i < 5; i++){
+    //   TempData = GetAllSensorData(); 
+    //   // TempData.temp = simpleKalmanFilter.updateEstimate(TempData.temp);
+    //   // TempData.humi = simpleKalmanFilter.updateEstimate(TempData.humi);
+    //   // TempData.CO = simpleKalmanFilter.updateEstimate(TempData.CO);
+    //   // TempData.CO2 = simpleKalmanFilter.updateEstimate(TempData.CO2);
+    //   // TempData.SO2 = simpleKalmanFilter.updateEstimate(TempData.SO2);
+    //   // TempData.NO2 = simpleKalmanFilter.updateEstimate(TempData.NO2);
+    //   // TempData.PM25 = simpleKalmanFilter.updateEstimate(TempData.PM25);
+    //   // TempData.PM10 = simpleKalmanFilter.updateEstimate(TempData.PM10);
+    //   // TempData.O3 = simpleKalmanFilter.updateEstimate(TempData.O3);
+    // }
     Serial.println(ConvertToJsonObject(TempData));
     SendData(ConvertToJsonObject(TempData));
-    delay(1000);
+    delay(600000);
   }
 /* End etup and loop function */
  

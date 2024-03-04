@@ -16,8 +16,12 @@ String SENSOR_DATA::floatToString(float value) {
 ///////////////////////////////////////
 
 SENSOR_RS485::SENSOR_RS485(){
+    cmd_temp_humi = new uint8_t[8]{0x14, 0x03, 0x00, 0x00, 0x00, 0x02, 0xC6, 0xCE};
+
     data_temperature = new uint8_t[8]{3, 3, 0, 0, 0, 1, 133, 232};
     data_humidity = new uint8_t[8]{3, 3, 0, 1, 0, 1, 212, 40};
+    // data_temperature = new uint8_t[8]{0x03, 0x03, 0x00, 0x00, 0x00, 0x01, 0x85, 0xE8};
+    // data_humidity = new uint8_t[8]{0x03, 0x03, 0x00, 0x01, 0x00, 0x01, 0xD4, 0x28};
     data_co = new uint8_t[8]{0x0E, 0x03, 0x00, 0x02, 0x00, 0x01, 0x25, 0x35};
     data_co2 = new uint8_t[8]{2, 3, 0, 4, 0, 1, 197, 248};
     data_so2 = new uint8_t[8]{0x0D, 0x03, 0x00, 0x02, 0x00, 0x01, 0x25, 0x06};
@@ -28,6 +32,7 @@ SENSOR_RS485::SENSOR_RS485(){
 };
 
 SENSOR_RS485::~SENSOR_RS485() {
+    delete[] cmd_temp_humi;
     delete[] data_temperature;
     delete[] data_humidity;
     delete[] data_co;
@@ -38,6 +43,11 @@ SENSOR_RS485::~SENSOR_RS485() {
     delete[] data_o3;
     delete[] data_pm10;
 };
+
+// Hàm để lấy con trỏ tới giá trị nhiệt độ
+uint8_t* SENSOR_RS485::getTempAndHumi() {
+    return cmd_temp_humi;
+}
 
 // Hàm để lấy con trỏ tới giá trị nhiệt độ
 uint8_t* SENSOR_RS485::getTemperature() {
@@ -88,122 +98,136 @@ AllSensorData GetAllSensorData() {
     SENSOR_RS485 data485;
     AllSensorData ReturnData;
 
-    // GET TEMP DATA
-    Serial.println("Writing to temp with data...");
-    Serial2.write(data485.getTemperature(), 8);
+    // GET TEMP & HUMI DATA
+    Serial.println("Writing to temp and humi with data...");
+    Serial2.write(data485.getTempAndHumi(), 8);
     // vTaskDelay(pdMS_TO_TICKS(1000));
     delay(1000);
     if (Serial2.available()) {
-    uint8_t receivedData[7];
-    Serial2.readBytes(receivedData, sizeof(receivedData));
-    ReturnData.temp = (int)receivedData[3] * 256 + (int)receivedData[4];
-    ReturnData.temp /= 10;
-    Serial.println(ReturnData.temp);
+      uint8_t receivedData[9];
+      Serial2.readBytes(receivedData, sizeof(receivedData));
+      ReturnData.humi = ((int)receivedData[3]*256 + (int)receivedData[4])/10.0;
+      Serial.println(ReturnData.humi);
+      ReturnData.temp = ((int)receivedData[5]*256 + (int)receivedData[6])/10.0;
+      Serial.println(ReturnData.temp);
     }
 
-    // GET HUMI DATA
-    Serial.println("Writing to humi with data...");
-    Serial2.write(data485.getHumidity(), 8);
-    // vTaskDelay(pdMS_TO_TICKS(1000));
-    delay(1000);
-    if (Serial2.available()) {
-    uint8_t receivedData[7];
-    Serial2.readBytes(receivedData, sizeof(receivedData));
-    ReturnData.humi = (int)receivedData[3] * 256 + (int)receivedData[4];
-    ReturnData.humi /= 10;
-    Serial.println(ReturnData.humi);
-    }
+    // // GET TEMP DATA
+    // Serial.println("Writing to temp with data...");
+    // Serial2.write(data485.getTemperature(), 8);
+    // // vTaskDelay(pdMS_TO_TICKS(1000));
+    // delay(1000);
+    // if (Serial2.available()) {
+    // uint8_t receivedData[7];
+    // Serial2.readBytes(receivedData, sizeof(receivedData));
+    // ReturnData.temp = (int)receivedData[3] * 256 + (int)receivedData[4];
+    // ReturnData.temp /= 10;
+    // Serial.println(ReturnData.temp);
+    // }
 
-    // GET CO DATA
-    Serial.println("Writing to CO with data...");
-    Serial2.write(data485.getCO(), 8);
-    // vTaskDelay(pdMS_TO_TICKS(1000));
-    delay(1000);
-    if (Serial2.available()) {
-    uint8_t receivedData[7];
-    Serial2.readBytes(receivedData, sizeof(receivedData));
-    ReturnData.CO = (int)receivedData[3] * 256 + (int)receivedData[4];
-    // CO /= 10;
-    Serial.println(ReturnData.CO);
-    }
+    // // GET HUMI DATA
+    // Serial.println("Writing to humi with data...");
+    // Serial2.write(data485.getHumidity(), 8);
+    // // vTaskDelay(pdMS_TO_TICKS(1000));
+    // delay(1000);
+    // if (Serial2.available()) {
+    // uint8_t receivedData[7];
+    // Serial2.readBytes(receivedData, sizeof(receivedData));
+    // ReturnData.humi = (int)receivedData[3] * 256 + (int)receivedData[4];
+    // ReturnData.humi /= 10;
+    // Serial.println(ReturnData.humi);
+    // }
 
-    // GET CO2 DATA
-    Serial.println("Writing to CO2 with data...");
-    Serial2.write(data485.getCO2(), 8);
-    // vTaskDelay(pdMS_TO_TICKS(1000));
-    delay(1000);
-    if (Serial2.available()) {
-    uint8_t receivedData[7];
-    Serial2.readBytes(receivedData, sizeof(receivedData));
-    ReturnData.CO2 = (int)receivedData[3] * 256 + (int)receivedData[4];
-    // CO2 /= 10;
-    Serial.println(ReturnData.CO2);
-    }
+    // // GET CO DATA
+    // Serial.println("Writing to CO with data...");
+    // Serial2.write(data485.getCO(), 8);
+    // // vTaskDelay(pdMS_TO_TICKS(1000));
+    // delay(1000);
+    // if (Serial2.available()) {
+    // uint8_t receivedData[7];
+    // Serial2.readBytes(receivedData, sizeof(receivedData));
+    // ReturnData.CO = (int)receivedData[3] * 256 + (int)receivedData[4];
+    // // CO /= 10;
+    // Serial.println(ReturnData.CO);
+    // }
 
-    // GET SO2 DATA
-    Serial.println("Writing to SO2 with data...");
-    Serial2.write(data485.getSO2(), 8);
-    // vTaskDelay(pdMS_TO_TICKS(1000));
-    delay(1000);
-    if (Serial2.available()) {
-    uint8_t receivedData[7];
-    Serial2.readBytes(receivedData, sizeof(receivedData));
-    ReturnData.SO2 = (int)receivedData[3] * 256 + (int)receivedData[4];
-    // SO2 /= 10;
-    Serial.println(ReturnData.SO2);
-    }
+    // // GET CO2 DATA
+    // Serial.println("Writing to CO2 with data...");
+    // Serial2.write(data485.getCO2(), 8);
+    // // vTaskDelay(pdMS_TO_TICKS(1000));
+    // delay(1000);
+    // if (Serial2.available()) {
+    // uint8_t receivedData[7];
+    // Serial2.readBytes(receivedData, sizeof(receivedData));
+    // ReturnData.CO2 = (int)receivedData[3] * 256 + (int)receivedData[4];
+    // // CO2 /= 10;
+    // Serial.println(ReturnData.CO2);
+    // }
 
-    // GET NO2 DATA
-    Serial.println("Writing to NO2 with data...");
-    Serial2.write(data485.getNO2(), 8);
-    // vTaskDelay(pdMS_TO_TICKS(1000));
-    delay(1000);
-    if (Serial2.available()) {
-    uint8_t receivedData[7];
-    Serial2.readBytes(receivedData, sizeof(receivedData));
-    ReturnData.NO2 = (int)receivedData[3] * 256 + (int)receivedData[4];
-    // NO2 /= 10;
-    Serial.println(ReturnData.NO2);
-    }
+    // // GET SO2 DATA
+    // Serial.println("Writing to SO2 with data...");
+    // Serial2.write(data485.getSO2(), 8);
+    // // vTaskDelay(pdMS_TO_TICKS(1000));
+    // delay(1000);
+    // if (Serial2.available()) {
+    // uint8_t receivedData[7];
+    // Serial2.readBytes(receivedData, sizeof(receivedData));
+    // ReturnData.SO2 = (int)receivedData[3] * 256 + (int)receivedData[4];
+    // // SO2 /= 10;
+    // Serial.println(ReturnData.SO2);
+    // }
 
-    // GET PM2.5 DATA
-    Serial.println("Writing to PM2.5 with data...");
-    Serial2.write(data485.getPM2_5(), 8);
-    // vTaskDelay(pdMS_TO_TICKS(1000));
-    delay(1000);
-    if (Serial2.available()) {
-    uint8_t receivedData[7];
-    Serial2.readBytes(receivedData, sizeof(receivedData));
-    ReturnData.PM25 = (int)receivedData[3] * 256 + (int)receivedData[4];
-    // PM25 /= 10;
-    Serial.println(ReturnData.PM25);
-    }
+    // // GET NO2 DATA
+    // Serial.println("Writing to NO2 with data...");
+    // Serial2.write(data485.getNO2(), 8);
+    // // vTaskDelay(pdMS_TO_TICKS(1000));
+    // delay(1000);
+    // if (Serial2.available()) {
+    // uint8_t receivedData[7];
+    // Serial2.readBytes(receivedData, sizeof(receivedData));
+    // ReturnData.NO2 = (int)receivedData[3] * 256 + (int)receivedData[4];
+    // // NO2 /= 10;
+    // Serial.println(ReturnData.NO2);
+    // }
 
-    // GET PM10 DATA
-    Serial.println("Writing to PM10 with data...");
-    Serial2.write(data485.getPM10(), 8);
-    // vTaskDelay(pdMS_TO_TICKS(1000));
-    delay(1000);
-    if (Serial2.available()) {
-    uint8_t receivedData[7];
-    Serial2.readBytes(receivedData, sizeof(receivedData));
-    ReturnData.PM10 = (int)receivedData[3] * 256 + (int)receivedData[4];
-    // PM10 /= 10;
-    Serial.println(ReturnData.PM10);
-    }
+    // // GET PM2.5 DATA
+    // Serial.println("Writing to PM2.5 with data...");
+    // Serial2.write(data485.getPM2_5(), 8);
+    // // vTaskDelay(pdMS_TO_TICKS(1000));
+    // delay(1000);
+    // if (Serial2.available()) {
+    // uint8_t receivedData[7];
+    // Serial2.readBytes(receivedData, sizeof(receivedData));
+    // ReturnData.PM25 = (int)receivedData[3] * 256 + (int)receivedData[4];
+    // // PM25 /= 10;
+    // Serial.println(ReturnData.PM25);
+    // }
 
-    // GET O3 DATA
-    Serial.println("Writing to O3 with data...");
-    Serial2.write(data485.getO3(), 8);
-    // vTaskDelay(pdMS_TO_TICKS(1000));
-    delay(1000);
-    if (Serial2.available()) {
-    uint8_t receivedData[7];
-    Serial2.readBytes(receivedData, sizeof(receivedData));
-    ReturnData.O3 = (int)receivedData[3] * 256 + (int)receivedData[4];
-    // O3 /= 10;
-    Serial.println(ReturnData.O3);
-    }
+    // // GET PM10 DATA
+    // Serial.println("Writing to PM10 with data...");
+    // Serial2.write(data485.getPM10(), 8);
+    // // vTaskDelay(pdMS_TO_TICKS(1000));
+    // delay(1000);
+    // if (Serial2.available()) {
+    // uint8_t receivedData[7];
+    // Serial2.readBytes(receivedData, sizeof(receivedData));
+    // ReturnData.PM10 = (int)receivedData[3] * 256 + (int)receivedData[4];
+    // // PM10 /= 10;
+    // Serial.println(ReturnData.PM10);
+    // }
+
+    // // GET O3 DATA
+    // Serial.println("Writing to O3 with data...");
+    // Serial2.write(data485.getO3(), 8);
+    // // vTaskDelay(pdMS_TO_TICKS(1000));
+    // delay(1000);
+    // if (Serial2.available()) {
+    // uint8_t receivedData[7];
+    // Serial2.readBytes(receivedData, sizeof(receivedData));
+    // ReturnData.O3 = (int)receivedData[3] * 256 + (int)receivedData[4];
+    // // O3 /= 10;
+    // Serial.println(ReturnData.O3);
+    // }
     return  ReturnData;
 }
 

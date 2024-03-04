@@ -23,7 +23,6 @@ information：https://docs.m5stack.com/en/atom/atom_dtu_nb
 #include <TinyGsmClient.h>
 #include <time.h>
 #include <sys/time.h>
-#include <ThingsBoard.h>
 
 #define MQTT_BROKER   "demo.thingsboard.io"
 #define MQTT_PORT     1883

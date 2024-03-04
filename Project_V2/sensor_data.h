@@ -14,7 +14,7 @@
 struct AllSensorData
 {
   /* data */
-  float temp = 9999, humi = 9999, CO = 9999, CO2 = 9999, SO2 = 9999, NO2 = 9999, PM25 = 9999, PM10 = 9999, O3 = 9999;
+  float temp = 1, humi = 1, CO = 1, CO2 = 1, SO2 = 1, NO2 = 1, PM25 = 1, PM10 = 1, O3 = 1;
 };
 
 
@@ -26,6 +26,7 @@ class SENSOR_DATA{
 
 class SENSOR_RS485{
   private:
+    uint8_t* cmd_temp_humi;
     uint8_t* data_temperature;
     uint8_t* data_humidity;
     uint8_t* data_co;
@@ -39,6 +40,7 @@ class SENSOR_RS485{
   public:
     SENSOR_RS485();
     ~SENSOR_RS485();
+    uint8_t* getTempAndHumi();
     uint8_t* getTemperature();
     uint8_t* getHumidity();
     uint8_t* getCO();
